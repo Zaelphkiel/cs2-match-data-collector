@@ -82,11 +82,8 @@ export const [NotificationsContext, useNotifications] = createContextHook(() => 
         return;
       }
 
-      const token = (await Notifications.getExpoPushTokenAsync({
-        projectId: "ok3xs34tn1a0sjt9xevou"
-      })).data;
-      console.log("Expo push token:", token);
-      setExpoPushToken(token);
+      console.log("[Notifications] Push token registration skipped - no valid Expo project ID");
+      console.log("[Notifications] Local notifications will still work");
     } catch (error) {
       console.error("Error getting push token:", error);
     }
