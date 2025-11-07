@@ -17,17 +17,44 @@ export default function SettingsScreen() {
     
     try {
       console.log('[Settings] 🔍 Testing connection to backend...');
+      
+      const baseUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+      if (!baseUrl) {
+        console.error('[Settings] ❌ Backend URL not configured');
+        setConnectionStatus('error');
+        return;
+      }
+
+      console.log('[Settings] 🌐 Testing connection to:', baseUrl);
+      const healthResponse = await fetch(`${baseUrl}/api/health`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+      });
+      
+      if (!healthResponse.ok) {
+        console.error('[Settings] ❌ Health check failed:', healthResponse.status);
+        setConnectionStatus('error');
+        return;
+      }
+
+      const healthData = await healthResponse.json();
+      console.log('[Settings] ✅ Health check passed:', healthData);
+
       const data = await trpcClient.matches.all.query({ date: new Date().toISOString().split('T')[0] });
       
-      if (data && data.length >= 0) {
+      if (data && Array.isArray(data)) {
         console.log('[Settings] ✅ Connection test successful, matches:', data.length);
         setConnectionStatus('success');
       } else {
-        console.error('[Settings] ❌ Connection test failed: no data');
+        console.error('[Settings] ❌ Connection test failed: invalid response');
         setConnectionStatus('error');
       }
     } catch (error) {
       console.error('[Settings] ❌ Connection test exception:', error);
+      if (error instanceof Error) {
+        console.error('[Settings] ❌ Error message:', error.message);
+        console.error('[Settings] ❌ Error stack:', error.stack);
+      }
       setConnectionStatus('error');
     } finally {
       setTestingConnection(false);
