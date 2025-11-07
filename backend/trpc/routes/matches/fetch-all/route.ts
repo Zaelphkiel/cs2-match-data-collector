@@ -217,7 +217,11 @@ async function fetchPandaScore(): Promise<Match[]> {
     url.searchParams.append("per_page", "50");
     url.searchParams.append("page", "1");
     
-    const token = "rX0hxTFfEhYoWjHwK2JCsMvnlL1Y66v9FBgWBvfYN9zLwpj_wy0";
+    const token = process.env.PANDASCORE_API_TOKEN || "rX0hxTFfEhYoWjHwK2JCsMvnlL1Y66v9FBgWBvfYN9zLwpj_wy0";
+    
+    if (!process.env.PANDASCORE_API_TOKEN) {
+      console.warn("[Backend] ⚠️ PANDASCORE_API_TOKEN not set in environment, using fallback token");
+    }
     
     const response = await fetch(url.toString(), {
       method: "GET",
