@@ -6,16 +6,22 @@ import superjson from "superjson";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    const url = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-    console.log('[tRPC] 🌐 Base URL:', url);
+  const url = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  
+  console.log('[tRPC] 🔧 Checking environment variables...');
+  console.log('[tRPC] 🌐 EXPO_PUBLIC_RORK_API_BASE_URL =', url);
+  console.log('[tRPC] 🌐 All EXPO_PUBLIC vars:', Object.keys(process.env).filter(k => k.startsWith('EXPO_PUBLIC')));
+  
+  if (url) {
+    console.log('[tRPC] ✅ Base URL found:', url);
     console.log('[tRPC] 🌐 Full tRPC URL will be:', `${url}/api/trpc`);
     return url;
   }
 
   console.error('[tRPC] ❌ EXPO_PUBLIC_RORK_API_BASE_URL not set');
+  console.error('[tRPC] ❌ Please restart Expo with: bun start --clear');
   throw new Error(
-    "No base url found, please set EXPO_PUBLIC_RORK_API_BASE_URL"
+    "No base url found, please set EXPO_PUBLIC_RORK_API_BASE_URL and restart Expo"
   );
 };
 
