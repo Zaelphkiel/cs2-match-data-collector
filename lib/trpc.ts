@@ -31,6 +31,9 @@ export const trpcClient = trpc.createClient({
       },
       fetch: async (url, options) => {
         console.log('[tRPC] 🔗 Attempting to fetch:', url);
+        console.log('[tRPC] 🔗 Request method:', options?.method);
+        console.log('[tRPC] 🔗 Request headers:', options?.headers);
+        
         try {
           const res = await fetch(url, {
             ...options,
@@ -38,20 +41,26 @@ export const trpcClient = trpc.createClient({
           });
           
           console.log('[tRPC] 📊 Response status:', res.status);
+          console.log('[tRPC] 📊 Response content-type:', res.headers.get('content-type'));
+          
+          const clonedRes = res.clone();
+          const text = await clonedRes.text();
+          console.log('[tRPC] 📊 Response body (first 500 chars):', text.substring(0, 500));
           
           if (!res.ok) {
             console.log('[tRPC] ⚠️ Response not OK:', res.status, res.statusText);
             if (res.status === 404) {
-              console.log('[tRPC] ⚠️ Backend not available (404) - falling back to mock data');
+              console.log('[tRPC] ⚠️ Backend not available (404)');
             }
-          } else {
-            console.log('[tRPC] ✅ Successful response from backend');
           }
           
           return res;
         } catch (err) {
           console.error('[tRPC] ❌ Backend connection failed:', err);
-          console.log('[tRPC] ⚠️ Using mock data fallback');
+          if (err instanceof Error) {
+            console.error('[tRPC] ❌ Error message:', err.message);
+            console.error('[tRPC] ❌ Error stack:', err.stack);
+          }
           throw err;
         }
       },
