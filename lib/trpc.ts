@@ -30,19 +30,28 @@ export const trpcClient = trpc.createClient({
         };
       },
       fetch: async (url, options) => {
+        console.log('[tRPC] 🔗 Attempting to fetch:', url);
         try {
           const res = await fetch(url, {
             ...options,
             signal: options?.signal,
           });
           
-          if (!res.ok && res.status === 404) {
-            console.log('[tRPC] ⚠️ Backend not available (404) - falling back to mock data');
+          console.log('[tRPC] 📊 Response status:', res.status);
+          
+          if (!res.ok) {
+            console.log('[tRPC] ⚠️ Response not OK:', res.status, res.statusText);
+            if (res.status === 404) {
+              console.log('[tRPC] ⚠️ Backend not available (404) - falling back to mock data');
+            }
+          } else {
+            console.log('[tRPC] ✅ Successful response from backend');
           }
           
           return res;
         } catch (err) {
-          console.log('[tRPC] ⚠️ Backend connection failed - using mock data');
+          console.error('[tRPC] ❌ Backend connection failed:', err);
+          console.log('[tRPC] ⚠️ Using mock data fallback');
           throw err;
         }
       },

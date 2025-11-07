@@ -85,7 +85,7 @@ export const [MatchesContext, useMatches] = createContextHook(() => {
     () => ({
     matches: filteredMatches,
     isLoading: !hasCheckedBackend && matchesQuery.status === 'pending',
-    error: null,
+    error: matchesQuery.error,
     selectedDate,
     setSelectedDate,
     filter,
@@ -99,6 +99,7 @@ export const [MatchesContext, useMatches] = createContextHook(() => {
       filteredMatches,
       hasCheckedBackend,
       matchesQuery.status,
+      matchesQuery.error,
       selectedDate,
       filter,
       getMatchById,

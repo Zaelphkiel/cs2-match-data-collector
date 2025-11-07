@@ -3,11 +3,20 @@ import { AlertCircle, Filter, RefreshCw, Wifi, WifiOff } from "lucide-react-nati
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MatchCard from "@/components/MatchCard";
 import { useMatches } from "@/contexts/MatchesContext";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import BackendStatus from "@/components/BackendStatus";
 
 export default function MatchesScreen() {
   const { matches, isLoading, error, filter, setFilter, refetch } = useMatches();
+
+  useEffect(() => {
+    console.log('[MatchesScreen] 🔍 Checking EXPO_PUBLIC_RORK_API_BASE_URL:', process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
+    if (!process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
+      console.error('[MatchesScreen] ❌ EXPO_PUBLIC_RORK_API_BASE_URL is not set!');
+    } else {
+      console.log('[MatchesScreen] ✅ Backend URL configured:', process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
+    }
+  }, []);
 
   const dataSource = useMemo(() => {
     if (matches.length === 0) return null;
@@ -96,7 +105,7 @@ export default function MatchesScreen() {
             Не удалось загрузить данные о матчах.
           </Text>
           <Text style={styles.errorSubtext}>
-            {error instanceof Error ? error.message : 'Проверьте подключение к интернету и попробуйте снова.'}
+            {error ? String(error) : 'Проверьте подключение к интернету и попробуйте снова.'}
           </Text>
           <TouchableOpacity 
             style={styles.retryButton}
