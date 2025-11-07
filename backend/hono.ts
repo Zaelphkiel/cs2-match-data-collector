@@ -8,8 +8,11 @@ const app = new Hono();
 
 app.use("*", cors({
   origin: "*",
-  allowMethods: ["GET", "POST", "OPTIONS"],
-  allowHeaders: ["Content-Type", "Authorization"],
+  allowMethods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+  allowHeaders: ["Content-Type", "Authorization", "x-trpc-source"],
+  exposeHeaders: ["Content-Type"],
+  credentials: true,
+  maxAge: 86400,
 }));
 
 app.use("*", async (c, next) => {
