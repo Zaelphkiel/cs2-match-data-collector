@@ -82,7 +82,9 @@ export const [NotificationsContext, useNotifications] = createContextHook(() => 
         return;
       }
 
-      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      const token = (await Notifications.getExpoPushTokenAsync({
+        projectId: "ok3xs34tn1a0sjt9xevou"
+      })).data;
       console.log("Expo push token:", token);
       setExpoPushToken(token);
     } catch (error) {
