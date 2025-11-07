@@ -10,10 +10,12 @@ export default function SettingsScreen() {
   const [darkMode, setDarkMode] = useState(true);
   const [testingConnection, setTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorDetails, setErrorDetails] = useState<string>('');
 
   const testConnection = async () => {
     setTestingConnection(true);
     setConnectionStatus('idle');
+    setErrorDetails('');
     
     try {
       console.log('[Settings] 🔍 Testing connection to backend...');
@@ -21,6 +23,7 @@ export default function SettingsScreen() {
       const baseUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
       if (!baseUrl) {
         console.error('[Settings] ❌ Backend URL not configured');
+        setErrorDetails('URL не настроен в .env файле');
         setConnectionStatus('error');
         return;
       }
@@ -33,6 +36,7 @@ export default function SettingsScreen() {
       
       if (!healthResponse.ok) {
         console.error('[Settings] ❌ Health check failed:', healthResponse.status);
+        setErrorDetails(`HTTP ${healthResponse.status}: ${baseUrl}/api/health не отвечает. Проверьте, что backend развернут на Render.`);
         setConnectionStatus('error');
         return;
       }
@@ -47,6 +51,7 @@ export default function SettingsScreen() {
         setConnectionStatus('success');
       } else {
         console.error('[Settings] ❌ Connection test failed: invalid response');
+        setErrorDetails('Неверный ответ от tRPC API');
         setConnectionStatus('error');
       }
     } catch (error) {
@@ -54,6 +59,9 @@ export default function SettingsScreen() {
       if (error instanceof Error) {
         console.error('[Settings] ❌ Error message:', error.message);
         console.error('[Settings] ❌ Error stack:', error.stack);
+        setErrorDetails(error.message || 'Неизвестная ошибка подключения');
+      } else {
+        setErrorDetails('Неизвестная ошибка подключения');
       }
       setConnectionStatus('error');
     } finally {
@@ -226,9 +234,19 @@ export default function SettingsScreen() {
           {connectionStatus === 'error' && (
             <View style={[styles.statusCard, styles.statusCardError]}>
               <XCircle size={16} color="#EF4444" />
-              <Text style={styles.statusTextError}>
-                Не удалось подключиться к серверу. Проверьте интернет.
-              </Text>
+              <View style={styles.errorTextContainer}>
+                <Text style={styles.statusTextError}>
+                  Не удалось подключиться к серверу.
+                </Text>
+                {errorDetails && (
+                  <Text style={styles.errorDetailsText}>
+                    {errorDetails}
+                  </Text>
+                )}
+                <Text style={styles.helpTextSmall}>
+                  Откройте TEST_BACKEND.md для диагностики
+                </Text>
+              </View>
             </View>
           )}
         </View>
@@ -420,9 +438,25 @@ const styles = StyleSheet.create({
     fontWeight: "600" as const,
   },
   statusTextError: {
-    flex: 1,
     fontSize: 13,
     color: "#EF4444",
     fontWeight: "600" as const,
+  },
+  errorTextContainer: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 6,
+  },
+  errorDetailsText: {
+    fontSize: 11,
+    color: "#F87171",
+    fontWeight: "400" as const,
+    lineHeight: 16,
+  },
+  helpTextSmall: {
+    fontSize: 10,
+    color: "#DC2626",
+    fontWeight: "500" as const,
+    marginTop: 4,
   },
 });
